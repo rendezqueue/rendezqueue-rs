@@ -1,0 +1,17 @@
+(())  ; A provisional EMPTY does not complete the peer.
+(() (req (sid "a")) (res (sid "a")))
+(() (req (sid "b")) (res (sid "b") (ack "a")))
+(() (req (sid "a")) (res (sid "a") (ack "b")))
+(() (req (sid "a") (ack "b") (values (()) "payload") (nxt "a1")) (res (sid "a")))
+(() (req (sid "b") (ack "a") (values (())))
+    (res (sid "b") (values (()) "payload") (nxt "a1")))
+(() (req (sid "a") (nxt "a1")) (res (sid "a")))
+; B seals its retained EMPTY after receiving; ACK must remain present.
+(() (req (sid "b") (ack "a") (nxt "b1"))
+    (res (sid "b") (values (()) "payload") (nxt "a1")))
+(() (req (sid "a") (nxt "a1")) (res (sid "a") (nxt "b1")))
+; An EMPTY row cannot resolve a cached NONEMPTY reference.
+(() (req (sid "b") (nxt "b1")) (reject +true))
+; A late provisional request cannot erase the sealed successor.
+(() (req (sid "b") (ack "a")) (res (sid "b") (values (()) "payload") (nxt "a1")))
+(() (req (sid "a") (nxt "a1")) (res (sid "a") (nxt "b1")))

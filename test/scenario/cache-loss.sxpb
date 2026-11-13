@@ -1,0 +1,19 @@
+(())
+(() (req (sid "a") (ack "b") (values (()) "") (nxt "a1")) (res (sid "a")))
+; [""] is NONEMPTY, unlike [].
+(() (req (sid "a") (nxt "a1")) (res (sid "a")))
+(() (req (sid "a") (nxt "wrong")) (reject +true))
+(() (forget "a"))
+; Reference misses must not recreate rows or discover another peer.
+(() (req (sid "a") (nxt "a1")) (reject +true))
+(() (req (sid "a") (ack "b") (values (()) "") (nxt "a1")) (res (sid "a")))
+(() (req (sid "b") (ack "a") (values (()) "answer") (nxt "b1"))
+    (res (sid "b") (values (()) "") (nxt "a1")))
+(() (reset +true))
+(() (req (sid "a") (nxt "a1")) (reject +true))
+(() (req (sid "b") (nxt "b1")) (reject +true))
+; Both real whole snapshots restore the pair.
+(() (req (sid "a") (ack "b") (values (()) "") (nxt "a1")) (res (sid "a")))
+(() (req (sid "b") (ack "a") (values (()) "answer") (nxt "b1"))
+    (res (sid "b") (values (()) "") (nxt "a1")))
+(() (req (sid "a") (nxt "a1")) (res (sid "a") (values (()) "answer") (nxt "b1")))

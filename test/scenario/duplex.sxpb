@@ -1,0 +1,15 @@
+(())  ; DATA/DATA schedule from the Lean compact-wire happy trace.
+(() (req (sid "Alice-0")) (res (sid "Alice-0")))
+(() (req (sid "Bob-0")) (res (sid "Bob-0") (ack "Alice-0")))
+(() (req (sid "Alice-0")) (res (sid "Alice-0") (ack "Bob-0")))
+(() (req (sid "Alice-0") (ack "Bob-0") (values (()) "hello") (nxt "Alice-1"))
+    (res (sid "Alice-0")))
+(() (req (sid "Bob-0") (ack "Alice-0") (values (()) "world") (nxt "Bob-1"))
+    (res (sid "Bob-0") (values (()) "hello") (nxt "Alice-1")))
+(() (req (sid "Alice-0") (nxt "Alice-1"))
+    (res (sid "Alice-0") (values (()) "world") (nxt "Bob-1")))
+; Duplicate FULL and reference requests preserve the same result.
+(() (req (sid "Bob-0") (ack "Alice-0") (values (()) "world") (nxt "Bob-1"))
+    (res (sid "Bob-0") (values (()) "hello") (nxt "Alice-1")))
+(() (req (sid "Bob-0") (values (())) (nxt "Bob-1"))
+    (res (sid "Bob-0") (values (()) "hello") (nxt "Alice-1")))

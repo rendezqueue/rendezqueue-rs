@@ -1,0 +1,48 @@
+(())  ; Readable ID labels; test/idle.rs checks every packet from real clients.
+
+; Opening and first DATA/DATA exchange.
+(() (req (sid "Alice-0")) (res (sid "Alice-0")))
+(() (req (sid "Bob-0")) (res (sid "Bob-0") (ack "Alice-0")))
+(() (req (sid "Alice-0")) (res (sid "Alice-0") (ack "Bob-0")))
+(() (req (sid "Alice-0") (ack "Bob-0") (values (()) "first from Alice") (nxt "Alice-1"))
+    (res (sid "Alice-0")))
+(() (req (sid "Bob-0") (ack "Alice-0") (values (()) "first from Bob") (nxt "Bob-1"))
+    (res (sid "Bob-0") (values (()) "first from Alice") (nxt "Alice-1")))
+(() (req (sid "Alice-0") (nxt "Alice-1"))
+    (res (sid "Alice-0") (values (()) "first from Bob") (nxt "Bob-1")))
+
+; Idle: PREVIOUS retries must not redeliver; unsealed CURRENT stays pending.
+(() (req (sid "Alice-0") (nxt "Alice-1"))
+    (res (sid "Alice-0") (values (()) "first from Bob") (nxt "Bob-1")))
+(() (req (sid "Alice-1") (ack "Bob-1"))
+    (res (sid "Alice-1")))
+(() (req (sid "Bob-0") (nxt "Bob-1"))
+    (res (sid "Bob-0") (values (()) "first from Alice") (nxt "Alice-1")))
+(() (req (sid "Bob-1") (ack "Alice-1"))
+    (res (sid "Bob-1")))
+
+; Repeat the idle cycle: no new generation, upload, or delivery.
+(() (req (sid "Alice-0") (nxt "Alice-1"))
+    (res (sid "Alice-0") (values (()) "first from Bob") (nxt "Bob-1")))
+(() (req (sid "Alice-1") (ack "Bob-1"))
+    (res (sid "Alice-1")))
+(() (req (sid "Bob-0") (nxt "Bob-1"))
+    (res (sid "Bob-0") (values (()) "first from Alice") (nxt "Alice-1")))
+(() (req (sid "Bob-1") (ack "Alice-1"))
+    (res (sid "Bob-1")))
+
+; New DATA replaces Alice's provisional EMPTY under the same SID.
+(() (req (sid "Alice-1") (ack "Bob-1") (values (()) "something new") (nxt "Alice-2"))
+    (res (sid "Alice-1")))
+; Bob receives DATA and seals his retained EMPTY.
+(() (req (sid "Bob-1") (ack "Alice-1"))
+    (res (sid "Bob-1") (values (()) "something new") (nxt "Alice-2")))
+; Until Bob publishes that seal, Alice's cached reference is still pending.
+(() (req (sid "Alice-1") (nxt "Alice-2"))
+    (res (sid "Alice-1")))
+; Publishing sealed EMPTY keeps ACK and must not redeliver DATA.
+(() (req (sid "Bob-1") (ack "Alice-1") (nxt "Bob-2"))
+    (res (sid "Bob-1") (values (()) "something new") (nxt "Alice-2")))
+; NXT completes Alice's EMPTY response.
+(() (req (sid "Alice-1") (nxt "Alice-2"))
+    (res (sid "Alice-1") (nxt "Bob-2")))

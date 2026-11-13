@@ -1,0 +1,19 @@
+(())
+; Provisional EMPTY may capture DATA, but DATA and sealed EMPTY are immutable.
+(() (req (sid "a") (ack "b")) (res (sid "a")))
+(() (req (sid "a") (ack "b") (values (()) "frozen") (nxt "a1")) (res (sid "a")))
+(() (req (sid "a") (ack "b") (values (()) "changed") (nxt "a1")) (reject +true))
+(() (req (sid "a") (ack "other") (values (()) "frozen") (nxt "a1")) (reject +true))
+(() (req (sid "a") (ack "b") (values (()) "frozen") (nxt "other")) (reject +true))
+(() (req (sid "b") (ack "a") (nxt "b1")) (res (sid "b") (values (()) "frozen") (nxt "a1")))
+(() (req (sid "b") (ack "a") (values (()) "too late") (nxt "b1")) (reject +true))
+; Stale OPEN neither rewrites bound rows nor returns DATA.
+(() (req (sid "a")) (res (sid "a") (ack "b")))
+(() (evict_opening +true))
+(() (req (sid "a") (nxt "a1")) (res (sid "a") (nxt "b1")))
+; Invalid shapes and self links reject.
+(() (req (sid "x") (values (()) "unbound")) (reject +true))
+(() (req (sid "x") (ack "y") (values (()) "unsealed")) (reject +true))
+(() (req (sid "x") (ack "x")) (reject +true))
+(() (req (sid "x") (ack "y") (nxt "x")) (reject +true))
+(() (req (sid "x") (ack "y") (nxt "y")) (reject +true))

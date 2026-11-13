@@ -1,0 +1,31 @@
+[package]
+name = "plyswap-comparison"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+publish = false
+autotests = false
+
+[dependencies]
+hashlink = "=0.12.2"
+rendezqueue = { path = "../.." }
+
+[dev-dependencies]
+sxpb = { git = "https://github.com/sxproto/sxpb-rs", rev = "3d362ed3518b17e29ed9d67e80c6f23d6384dfc4" }
+
+[[test]]
+name = "comparison"
+path = "test/comparison.rs"
+
+[[test]]
+name = "cache_equivalence"
+path = "test/cache_equivalence.rs"
+
+[[bin]]
+name = "benchmark"
+path = "src/bin/benchmark.rs"
+
+[[bin]]
+name = "cache-benchmark"
+path = "src/bin/cache-benchmark.rs"
+test = false

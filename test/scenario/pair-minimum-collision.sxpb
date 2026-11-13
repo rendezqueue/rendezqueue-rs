@@ -1,0 +1,10 @@
+(())
+; A minimum SID does not identify a pair in admitted server states.
+(() (req (sid "b") (ack "a")) (res (sid "b")))
+(() (req (sid "c") (ack "a")) (res (sid "c")))
+; Both rows survive; newest directed candidate wins discovery.
+(() (req (sid "a")) (res (sid "a") (ack "c")))
+; Discovery does not reserve a pair: a can bind to b instead.
+(() (req (sid "a") (ack "b")) (res (sid "a")))
+(() (req (sid "b")) (res (sid "b") (ack "a")))
+(() (req (sid "c")) (res (sid "c") (ack "a")))
