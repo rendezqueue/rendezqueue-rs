@@ -1,0 +1,15 @@
+(())  ; DATA/DATA schedule from the Lean compact-wire happy trace.
+(() (req (self "Alice-0")) (res (self "Alice-0")))
+(() (req (self "Bob-0")) (res (self "Bob-0") (peer "Alice-0")))
+(() (req (self "Alice-0")) (res (self "Alice-0") (peer "Bob-0")))
+(() (req (self "Alice-0") (peer "Bob-0") (values (()) "hello") (next "Alice-1"))
+    (res (self "Alice-0")))
+(() (req (self "Bob-0") (peer "Alice-0") (values (()) "world") (next "Bob-1"))
+    (res (self "Bob-0") (values (()) "hello") (next "Alice-1")))
+(() (req (self "Alice-0") (next "Alice-1"))
+    (res (self "Alice-0") (values (()) "world") (next "Bob-1")))
+; Duplicate FULL and reference requests preserve the same result.
+(() (req (self "Bob-0") (peer "Alice-0") (values (()) "world") (next "Bob-1"))
+    (res (self "Bob-0") (values (()) "hello") (next "Alice-1")))
+(() (req (self "Bob-0") (values (())) (next "Bob-1"))
+    (res (self "Bob-0") (values (()) "hello") (next "Alice-1")))

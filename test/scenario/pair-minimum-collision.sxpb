@@ -1,0 +1,10 @@
+(())
+; A minimum XID does not identify a pair in admitted server states.
+(() (req (self "b") (peer "a")) (res (self "b")))
+(() (req (self "c") (peer "a")) (res (self "c")))
+; Both rows survive; newest directed candidate wins discovery.
+(() (req (self "a")) (res (self "a") (peer "c")))
+; Discovery does not reserve a pair: a can bind to b instead.
+(() (req (self "a") (peer "b")) (res (self "a")))
+(() (req (self "b")) (res (self "b") (peer "a")))
+(() (req (self "c")) (res (self "c") (peer "a")))

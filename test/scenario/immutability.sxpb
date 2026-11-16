@@ -1,0 +1,19 @@
+(())
+; Provisional EMPTY may capture DATA, but DATA and sealed EMPTY are immutable.
+(() (req (self "a") (peer "b")) (res (self "a")))
+(() (req (self "a") (peer "b") (values (()) "frozen") (next "a1")) (res (self "a")))
+(() (req (self "a") (peer "b") (values (()) "changed") (next "a1")) (reject +true))
+(() (req (self "a") (peer "other") (values (()) "frozen") (next "a1")) (reject +true))
+(() (req (self "a") (peer "b") (values (()) "frozen") (next "other")) (reject +true))
+(() (req (self "b") (peer "a") (next "b1")) (res (self "b") (values (()) "frozen") (next "a1")))
+(() (req (self "b") (peer "a") (values (()) "too late") (next "b1")) (reject +true))
+; Stale OPEN neither rewrites bound rows nor returns DATA.
+(() (req (self "a")) (res (self "a") (peer "b")))
+(() (evict_opening +true))
+(() (req (self "a") (next "a1")) (res (self "a") (next "b1")))
+; Invalid shapes and self links reject.
+(() (req (self "x") (values (()) "unbound")) (reject +true))
+(() (req (self "x") (peer "y") (values (()) "unsealed")) (reject +true))
+(() (req (self "x") (peer "x")) (reject +true))
+(() (req (self "x") (peer "y") (next "x")) (reject +true))
+(() (req (self "x") (peer "y") (next "y")) (reject +true))

@@ -1,0 +1,19 @@
+(())
+(() (req (self "a") (peer "b") (values (()) "") (next "a1")) (res (self "a")))
+; [""] is NONEMPTY, unlike [].
+(() (req (self "a") (next "a1")) (res (self "a")))
+(() (req (self "a") (next "wrong")) (reject +true))
+(() (forget "a"))
+; Reference misses must not recreate rows or discover another peer.
+(() (req (self "a") (next "a1")) (reject +true))
+(() (req (self "a") (peer "b") (values (()) "") (next "a1")) (res (self "a")))
+(() (req (self "b") (peer "a") (values (()) "answer") (next "b1"))
+    (res (self "b") (values (()) "") (next "a1")))
+(() (reset +true))
+(() (req (self "a") (next "a1")) (reject +true))
+(() (req (self "b") (next "b1")) (reject +true))
+; Both real whole snapshots restore the pair.
+(() (req (self "a") (peer "b") (values (()) "") (next "a1")) (res (self "a")))
+(() (req (self "b") (peer "a") (values (()) "answer") (next "b1"))
+    (res (self "b") (values (()) "") (next "a1")))
+(() (req (self "a") (next "a1")) (res (self "a") (values (()) "answer") (next "b1")))

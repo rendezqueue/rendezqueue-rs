@@ -1,0 +1,17 @@
+(())  ; A provisional EMPTY does not complete the peer.
+(() (req (self "a")) (res (self "a")))
+(() (req (self "b")) (res (self "b") (peer "a")))
+(() (req (self "a")) (res (self "a") (peer "b")))
+(() (req (self "a") (peer "b") (values (()) "payload") (next "a1")) (res (self "a")))
+(() (req (self "b") (peer "a") (values (())))
+    (res (self "b") (values (()) "payload") (next "a1")))
+(() (req (self "a") (next "a1")) (res (self "a")))
+; B seals its retained EMPTY after receiving; PEER must remain present.
+(() (req (self "b") (peer "a") (next "b1"))
+    (res (self "b") (values (()) "payload") (next "a1")))
+(() (req (self "a") (next "a1")) (res (self "a") (next "b1")))
+; An EMPTY row cannot resolve a cached NONEMPTY reference.
+(() (req (self "b") (next "b1")) (reject +true))
+; A late provisional request cannot erase the sealed successor.
+(() (req (self "b") (peer "a")) (res (self "b") (values (()) "payload") (next "a1")))
+(() (req (self "a") (next "a1")) (res (self "a") (next "b1")))

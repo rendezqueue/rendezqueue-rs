@@ -1,0 +1,56 @@
+[package]
+name = "rendezqueue"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "PlySwap rendezvous exchange library and HTTP server"
+license = "0BSD"
+publish = false
+autotests = false
+autoexamples = false
+
+[dependencies]
+base64 = "0.23.1"
+hashlink = "=0.12.2"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tiny_http = "0.12.0"
+ureq = { version = "3.5.1", default-features = false, features = ["rustls"] }
+sxpb = { git = "https://github.com/sxproto/sxpb-rs", rev = "3d362ed3518b17e29ed9d67e80c6f23d6384dfc4" }
+
+[[test]]
+name = "core"
+path = "test/core.rs"
+
+[[test]]
+name = "scenario"
+path = "test/scenario.rs"
+
+[[test]]
+name = "network"
+path = "test/network.rs"
+
+[[test]]
+name = "wire"
+path = "test/wire.rs"
+
+[[test]]
+name = "idle"
+path = "test/idle.rs"
+
+[[test]]
+name = "performance_report"
+path = "test/performance/report.rs"
+
+[[example]]
+name = "exchange"
+path = "example/exchange.rs"
+
+[[example]]
+name = "http_exchange"
+path = "example/http_exchange.rs"
+
+[[example]]
+name = "http_benchmark"
+path = "test/performance/http.rs"
+

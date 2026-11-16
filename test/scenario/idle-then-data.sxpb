@@ -1,0 +1,48 @@
+(())  ; Readable ID labels; test/idle.rs checks every packet from real clients.
+
+; Opening and first DATA/DATA exchange.
+(() (req (self "Alice-0")) (res (self "Alice-0")))
+(() (req (self "Bob-0")) (res (self "Bob-0") (peer "Alice-0")))
+(() (req (self "Alice-0")) (res (self "Alice-0") (peer "Bob-0")))
+(() (req (self "Alice-0") (peer "Bob-0") (values (()) "first from Alice") (next "Alice-1"))
+    (res (self "Alice-0")))
+(() (req (self "Bob-0") (peer "Alice-0") (values (()) "first from Bob") (next "Bob-1"))
+    (res (self "Bob-0") (values (()) "first from Alice") (next "Alice-1")))
+(() (req (self "Alice-0") (next "Alice-1"))
+    (res (self "Alice-0") (values (()) "first from Bob") (next "Bob-1")))
+
+; Idle: PREVIOUS retries must not redeliver; unsealed CURRENT stays pending.
+(() (req (self "Alice-0") (next "Alice-1"))
+    (res (self "Alice-0") (values (()) "first from Bob") (next "Bob-1")))
+(() (req (self "Alice-1") (peer "Bob-1"))
+    (res (self "Alice-1")))
+(() (req (self "Bob-0") (next "Bob-1"))
+    (res (self "Bob-0") (values (()) "first from Alice") (next "Alice-1")))
+(() (req (self "Bob-1") (peer "Alice-1"))
+    (res (self "Bob-1")))
+
+; Repeat the idle cycle: no new generation, upload, or delivery.
+(() (req (self "Alice-0") (next "Alice-1"))
+    (res (self "Alice-0") (values (()) "first from Bob") (next "Bob-1")))
+(() (req (self "Alice-1") (peer "Bob-1"))
+    (res (self "Alice-1")))
+(() (req (self "Bob-0") (next "Bob-1"))
+    (res (self "Bob-0") (values (()) "first from Alice") (next "Alice-1")))
+(() (req (self "Bob-1") (peer "Alice-1"))
+    (res (self "Bob-1")))
+
+; New DATA replaces Alice's provisional EMPTY under the same XID.
+(() (req (self "Alice-1") (peer "Bob-1") (values (()) "something new") (next "Alice-2"))
+    (res (self "Alice-1")))
+; Bob receives DATA and seals his retained EMPTY.
+(() (req (self "Bob-1") (peer "Alice-1"))
+    (res (self "Bob-1") (values (()) "something new") (next "Alice-2")))
+; Until Bob publishes that seal, Alice's cached reference is still pending.
+(() (req (self "Alice-1") (next "Alice-2"))
+    (res (self "Alice-1")))
+; Publishing sealed EMPTY keeps PEER and must not redeliver DATA.
+(() (req (self "Bob-1") (peer "Alice-1") (next "Bob-2"))
+    (res (self "Bob-1") (values (()) "something new") (next "Alice-2")))
+; NEXT completes Alice's EMPTY response.
+(() (req (self "Alice-1") (next "Alice-2"))
+    (res (self "Alice-1") (next "Bob-2")))
